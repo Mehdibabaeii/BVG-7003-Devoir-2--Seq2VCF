@@ -77,7 +77,7 @@ RESULTS_DIR="/path/to/results"
 Run the script using a scheduler like SLURM:
 
 ```bash
-sbatch CanGBS.sh
+sbatch SLURM_Seq2VCF.sh
 ```
 
 ### Output
