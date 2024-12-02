@@ -31,6 +31,7 @@ Organize your input files in the following structure:
   │   ├── barcodes.txt          # Barcode file for demultiplexing
   ├── refgenome/
   │   ├── reference.fa          # Reference genome in FASTA format
+  ├── results                   # File for results
 ```
 
 ### Input Details
