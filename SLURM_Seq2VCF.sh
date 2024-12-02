@@ -4,10 +4,10 @@
 # -----------------------------
 # User-defined Variables
 # -----------------------------
-DATA_DIR="/path/to/data"                     # Path to the raw data directory
+DATA_DIR="/data"                     # Path to the raw data directory
 BARCODES_FILE="${DATA_DIR}/barcodes.txt"     # Path to the barcode file
-REF_GENOME="/path/to/reference.fa"           # Path to the reference genome
-RESULTS_DIR="/path/to/results"               # Path to the results directory
+REF_GENOME="refgenome/reference.fa"           # Path to the reference genome
+RESULTS_DIR="/results"               # Path to the results directory
 
 # Derived Paths
 DEMUX_DIR="${RESULTS_DIR}/demultiplexed"
