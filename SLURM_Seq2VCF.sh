@@ -1,13 +1,7 @@
-#!/bin/bash
-
-
 # -----------------------------
-# User-defined Variables
+# Load Parameters
 # -----------------------------
-DATA_DIR="/data"                     # Path to the raw data directory
-BARCODES_FILE="${DATA_DIR}/barcodes.txt"     # Path to the barcode file
-REF_GENOME="/refgenome/reference.fa"           # Path to the reference genome
-RESULTS_DIR="/results"               # Path to the results directory
+source parameters.conf
 
 # Derived Paths
 DEMUX_DIR="${RESULTS_DIR}/demultiplexed"
@@ -64,7 +58,7 @@ echo "Quality Control Complete."
 echo "Starting Adapter Trimming..."
 for fq in ${DATA_DIR}/*.fq; do
     base=$(basename "$fq" .fq)
-    cutadapt -a AGATCGGAAGAGCGGG -m 50 -o ${TRIM_DIR}/${base}_trimmed.fq.gz "$fq"
+    cutadapt -a ${ADAPTER_SEQ} -m ${MIN_LENGTH} -o ${TRIM_DIR}/${base}_trimmed.fq.gz "$fq"
     if [ $? -ne 0 ]; then
         echo "Error during Adapter Trimming for $fq."
         exit 1
@@ -104,9 +98,9 @@ samtools mpileup -g -f ${REF_GENOME} -b ${VCF_DIR}/bam_list.txt | \
 bcftools call -mv -Ov -o ${VCF_DIR}/variants_raw.vcf
 
 # Apply filters
-bcftools filter -e 'QUAL<20 || DP<10' ${VCF_DIR}/variants_raw.vcf -o ${VCF_DIR}/variants_filtered.vcf
-#bcftools filter -e 'F_MISSING > 0.2 || MAF < 0.01' ${VCF_DIR}/variants_filtered.vcf -o ${VCF_DIR}/variants_filtered_final.vcf
-bcftools sort ${VCF_DIR}/variants_filtered.vcf -o ${VCF_DIR}/variants_sorted.vcf
+bcftools filter -e "QUAL<${QUAL_THRESHOLD} || DP<${DEPTH_THRESHOLD}" ${VCF_DIR}/variants_raw.vcf -o ${VCF_DIR}/variants_filtered.vcf
+bcftools filter -e "F_MISSING > ${MAX_MISSING} || MAF < ${MAF_THRESHOLD}" ${VCF_DIR}/variants_filtered.vcf -o ${VCF_DIR}/variants_filtered_final.vcf
+bcftools sort ${VCF_DIR}/variants_filtered_final.vcf -o ${VCF_DIR}/variants_sorted.vcf
 
 bgzip -c ${VCF_DIR}/variants_sorted.vcf > ${VCF_DIR}/variants_sorted.vcf.gz
 tabix -p vcf ${VCF_DIR}/variants_sorted.vcf.gz
@@ -117,3 +111,6 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Variant Calling Complete. Final VCF file is at: ${VCF_DIR}/variants_sorted.vcf.gz"
+
+
+
