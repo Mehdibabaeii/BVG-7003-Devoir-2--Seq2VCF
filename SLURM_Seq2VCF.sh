@@ -45,7 +45,6 @@ mkdir -p results logs ${DEMUX_DIR} ${QC_DIR} ${TRIM_DIR} ${ALIGN_DIR} ${VCF_DIR}
 # -----------------------------
 LOG_FILE="${LOG_DIR}/demultiplexing_$(date +%Y%m%d%H%M%S).log"
 echo "Starting Demultiplexing..." | tee -a ${LOG_FILE}
-cd ${DATA_DIR}
 
 # Check if barcodes file exists
 if [ ! -f ${BARCODES_FILE} ]; then
@@ -53,7 +52,7 @@ if [ ! -f ${BARCODES_FILE} ]; then
     exit 1
 fi
 
-sabre se -f *.fq.gz \
+sabre se -f ${DATA_DIR}/*.fq.gz \
          -b ${BARCODES_FILE} \
          -u ${DEMUX_DIR}/unmatched.fq.gz \
          > ${DEMUX_DIR}/demux.log 2>&1
