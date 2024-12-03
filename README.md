@@ -86,7 +86,7 @@ Update `parameters.conf` with paths and thresholds:
 Run the pipeline script:
 ```bash
 bash Seq2VCF_pipeline.sh
-
+```
 ---
 ### Monitor Progress:
 Use `squeue` (or equivalent) to track SLURM job status.
@@ -115,7 +115,7 @@ Use `squeue` (or equivalent) to track SLURM job status.
 Variants can be annotated using SnpEff:
 ```bash
 java -Xmx4g -jar snpEff.jar annotate -v GRCh37.75 variants/final_filtered.vcf.gz > variants/annotated.vcf
-
+```
 ---
 
 ## Project Deliverables
