@@ -13,6 +13,18 @@ source parameters.conf
 #SBATCH --cpus-per-task=${THREADS}      # Use the number of threads allocated in parameters.conf
 
 # -----------------------------
+# Modules
+# -----------------------------
+module load Python/3.5
+module load Java/1.8.0_102
+module load Cutadapt/2.1
+module load Sabre/1.000
+module load BWA/v0.7.17
+module load SAMtools/1.8
+module load BCFtools/1.15
+module load FastQC/0.11.2
+module load SnpEff/5.2e
+# -----------------------------
 # Derived Paths
 # -----------------------------
 DEMUX_DIR="${RESULTS_DIR}/demultiplexed"  # Directory for demultiplexed files
