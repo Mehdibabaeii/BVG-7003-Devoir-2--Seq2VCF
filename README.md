@@ -41,6 +41,7 @@ Pipeline results are stored in the following directories:
   ├── variants/               # Filtered VCF files
 
 ---
+
 ## Software Dependencies and Installation
 
 ### Dependencies
