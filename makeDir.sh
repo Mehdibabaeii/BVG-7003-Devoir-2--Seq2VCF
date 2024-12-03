@@ -1,8 +1,8 @@
 
 #!/bin/bash
 
-printf "\nMake structure directory: data, barcodes refgenome, results, log\n"
-for i in data reject barcodes refgenome results stat
+printf "\nMake structure directory: data, barcodes refgenome, results, logs\n"
+for i in data barcodes refgenome results logs
 do
 mkdir $i
 done
