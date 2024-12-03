@@ -11,15 +11,23 @@ QC_DIR="${RESULTS_DIR}/qc_reports"          # Directory for quality reports
 TRIM_DIR="${RESULTS_DIR}/trimmed"           # Directory for trimmed files
 ALIGN_DIR="${RESULTS_DIR}/alignment"         # Directory for aligned files
 VCF_DIR="${RESULTS_DIR}/variants"            # Directory for VCF files
+LOG_DIR="${RESULTS_DIR}/logs"                # Directory for logs
 
 # Create required directories
-mkdir -p ${DEMUX_DIR} ${QC_DIR} ${TRIM_DIR} ${ALIGN_DIR} ${VCF_DIR}  # Create necessary directories
+mkdir -p ${DEMUX_DIR} ${QC_DIR} ${TRIM_DIR} ${ALIGN_DIR} ${VCF_DIR} ${LOG_DIR}  # Create necessary directories
 
 # -----------------------------
 # Step 1: Demultiplexing
 # -----------------------------
-echo "Starting Demultiplexing..."
+LOG_FILE="${LOG_DIR}/demultiplexing_$(date +%Y%m%d%H%M%S).log"
+echo "Starting Demultiplexing..." | tee -a ${LOG_FILE}
 cd ${DATA_DIR}
+
+# Check if barcodes file exists
+if [ ! -f ${BARCODES_FILE} ]; then
+    echo "Error: Barcodes file not found!" | tee -a ${LOG_FILE}
+    exit 1
+fi
 
 sabre se -f *.fq.gz \
          -b ${BARCODES_FILE} \
@@ -27,56 +35,58 @@ sabre se -f *.fq.gz \
          > ${DEMUX_DIR}/demux.log 2>&1
 
 if [ $? -ne 0 ]; then
-    echo "Error during Demultiplexing. Check logs."
+    echo "Error during Demultiplexing. Check logs." | tee -a ${LOG_FILE}
     exit 1
 fi
 
 cd -
-echo "Demultiplexing Complete."
-
-# Verify demultiplexed files
-if ls ${DATA_DIR}/*.fq 1> /dev/null 2>&1; then
-    echo "Demultiplexed files found."
-else
-    echo "No demultiplexed files found. Exiting."
-    exit 1
-fi
+echo "Demultiplexing Complete." | tee -a ${LOG_FILE}
 
 # -----------------------------
 # Step 2: Quality Control
 # -----------------------------
-echo "Starting Quality Control..."
+LOG_FILE="${LOG_DIR}/qc_$(date +%Y%m%d%H%M%S).log"
+echo "Starting Quality Control..." | tee -a ${LOG_FILE}
 fastqc -t 10 -o ${QC_DIR} ${DATA_DIR}/*.fq  # Run FastQC for quality control
 
 if [ $? -ne 0 ]; then
-    echo "Error during Quality Control."
+    echo "Error during Quality Control." | tee -a ${LOG_FILE}
     exit 1
 fi
-echo "Quality Control Complete."
+echo "Quality Control Complete." | tee -a ${LOG_FILE}
 
 # -----------------------------
 # Step 3: Adapter Trimming
 # -----------------------------
-echo "Starting Adapter Trimming..."
-for fq in ${DATA_DIR}/*.fq; do
-    base=$(basename "$fq" .fq)  # Extract base name of the file
-    cutadapt -a ${ADAPTER_SEQ} -m ${MIN_LENGTH} -o ${TRIM_DIR}/${base}_trimmed.fq.gz "$fq"  # Trim adapters
-    if [ $? -ne 0 ]; then
-        echo "Error during Adapter Trimming for $fq."
-        exit 1
-    fi
-done
-echo "Adapter Trimming Complete."
+LOG_FILE="${LOG_DIR}/adapter_trimming_$(date +%Y%m%d%H%M%S).log"
+echo "Starting Adapter Trimming..." | tee -a ${LOG_FILE}
+
+# Check if Adapter sequence is defined
+if [ -z "${ADAPTER_SEQ}" ]; then
+    echo "Error: Adapter sequence is not defined!" | tee -a ${LOG_FILE}
+    exit 1
+fi
+
+# Parallelize trimming using GNU Parallel for efficiency
+ls ${DATA_DIR}/*.fq | parallel -j 8 'base=$(basename {} .fq); cutadapt -a ${ADAPTER_SEQ} -m ${MIN_LENGTH} -o ${TRIM_DIR}/{/.}_trimmed.fq.gz {}' 2>&1 | tee -a ${LOG_FILE}
+
+if [ $? -ne 0 ]; then
+    echo "Error during Adapter Trimming." | tee -a ${LOG_FILE}
+    exit 1
+fi
+echo "Adapter Trimming Complete." | tee -a ${LOG_FILE}
 
 # -----------------------------
 # Step 4: Alignment
 # -----------------------------
-echo "Starting Alignment..."
+LOG_FILE="${LOG_DIR}/alignment_$(date +%Y%m%d%H%M%S).log"
+echo "Starting Alignment..." | tee -a ${LOG_FILE}
 for fq in ${TRIM_DIR}/*_trimmed.fq.gz; do
     base=$(basename "$fq" _trimmed.fq.gz)  # Extract base name of the file
     bwa mem -t 10 ${REF_GENOME} "$fq" > ${ALIGN_DIR}/${base}.sam  # Align with BWA
+
     if [ $? -ne 0 ]; then
-        echo "Error in Alignment for $fq."
+        echo "Error in Alignment for $fq." | tee -a ${LOG_FILE}
         exit 1
     fi
 
@@ -88,12 +98,13 @@ for fq in ${TRIM_DIR}/*_trimmed.fq.gz; do
     # Clean up intermediate files
     rm ${ALIGN_DIR}/${base}.sam ${ALIGN_DIR}/${base}.bam  # Remove intermediate files
 done
-echo "Alignment Complete."
+echo "Alignment Complete." | tee -a ${LOG_FILE}
 
 # -----------------------------
 # Step 5: Variant Calling with Filters
 # -----------------------------
-echo "Starting Variant Calling..."
+LOG_FILE="${LOG_DIR}/variant_calling_$(date +%Y%m%d%H%M%S).log"
+echo "Starting Variant Calling..." | tee -a ${LOG_FILE}
 ls ${ALIGN_DIR}/*_sorted.bam > ${VCF_DIR}/bam_list.txt  # Create a list of BAM files
 
 samtools mpileup -g -f ${REF_GENOME} -b ${VCF_DIR}/bam_list.txt | \
@@ -108,25 +119,34 @@ bgzip -c ${VCF_DIR}/variants_sorted.vcf > ${VCF_DIR}/variants_sorted.vcf.gz  # C
 tabix -p vcf ${VCF_DIR}/variants_sorted.vcf.gz  # Index the compressed VCF file
 
 if [ $? -ne 0 ]; then
-    echo "Error in Variant Calling. Check logs."
+    echo "Error in Variant Calling. Check logs." | tee -a ${LOG_FILE}
     exit 1
 fi
 
-echo "Variant Calling Complete. Final VCF file is at: ${VCF_DIR}/variants_sorted.vcf.gz"
+echo "Variant Calling Complete. Final VCF file is at: ${VCF_DIR}/variants_sorted.vcf.gz" | tee -a ${LOG_FILE}
 
 # -----------------------------
 # Step 6: Functional Annotation with SnpEff (Optional)
 # -----------------------------
-echo "Starting Variant Annotation with SnpEff..."
-java -Xmx4g -jar snpEff.jar annotate -v ${REF_GENOME} ${VCF_DIR}/variants_sorted.vcf.gz > ${VCF_DIR}/variants_annotated.vcf
+LOG_FILE="${LOG_DIR}/annotation_$(date +%Y%m%d%H%M%S).log"
+echo "Starting Variant Annotation with SnpEff..." | tee -a ${LOG_FILE}
 
-if [ $? -ne 0 ]; then
-    echo "Error during Variant Annotation with SnpEff."
+# Vérifie si SnpEff est installé
+if ! command -v java &> /dev/null; then
+    echo "Error: Java is not installed. Please install Java and try again." | tee -a ${LOG_FILE}
     exit 1
 fi
 
-# Compress and index the annotated VCF
+# Annoter les variantes avec SnpEff en utilisant le génome de référence spécifié dans parameters.conf
+java -Xmx4g -jar snpEff.jar annotate -v ${REF_GENOME} ${VCF_DIR}/variants_sorted.vcf.gz > ${VCF_DIR}/variants_annotated.vcf
+
+if [ $? -ne 0 ]; then
+    echo "Error during Variant Annotation with SnpEff." | tee -a ${LOG_FILE}
+    exit 1
+fi
+
+# Compresser et indexer le VCF annoté
 bgzip -c ${VCF_DIR}/variants_annotated.vcf > ${VCF_DIR}/variants_annotated.vcf.gz
 tabix -p vcf ${VCF_DIR}/variants_annotated.vcf.gz
 
-echo "Annotation Complete. Annotated VCF file is at: ${VCF_DIR}/variants_annotated.vcf.gz"
+echo "Annotation Complete. Annotated VCF file is at: ${VCF_DIR}/variants_annotated.vcf.gz" | tee -a ${LOG_FILE}
