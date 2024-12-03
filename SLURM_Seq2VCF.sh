@@ -43,21 +43,7 @@ mkdir -p results logs ${DEMUX_DIR} ${QC_DIR} ${TRIM_DIR} ${ALIGN_DIR} ${VCF_DIR}
 # -----------------------------
 # Set SNP Effect Database based on REF_GENOME
 # -----------------------------
-
-# Extract the base name of the reference genome file (no extension)
-REF_GENOME_BASENAME=$(basename ${REF_GENOME} .fa)
-
-# Logic to determine the corresponding SnpEff database based on the reference genome
-if [[ ${REF_GENOME_BASENAME} == "rice" ]]; then
-    SNP_EFFECT_DB="rice"
-elif [[ ${REF_GENOME_BASENAME} == "maize" ]]; then
-    SNP_EFFECT_DB="maize"
-elif [[ ${REF_GENOME_BASENAME} == "arabidopsis" ]]; then
-    SNP_EFFECT_DB="athaliana"
-else
-    echo "Warning: No predefined SnpEff database found for ${REF_GENOME_BASENAME}. Using custom genome annotation."
-    SNP_EFFECT_DB="custom_genome"  # Fall back to custom genome if no match
-fi
+SNP_EFFECT_DB=${SNP_EFFECT_DB}  # Use value deffine in parameters
 
 # -----------------------------
 # Step 1: Demultiplexing
