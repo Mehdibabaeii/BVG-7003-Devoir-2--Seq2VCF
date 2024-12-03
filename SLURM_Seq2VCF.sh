@@ -24,18 +24,21 @@ module load SAMtools/1.8
 module load BCFtools/1.15
 module load FastQC/0.11.2
 module load SnpEff/5.2e
+
 # -----------------------------
 # Derived Paths
 # -----------------------------
-DEMUX_DIR="${RESULTS_DIR}/demultiplexed"  # Directory for demultiplexed files
-QC_DIR="${RESULTS_DIR}/qc_reports"        # Directory for quality reports
-TRIM_DIR="${RESULTS_DIR}/trimmed"         # Directory for trimmed files
-ALIGN_DIR="${RESULTS_DIR}/alignment"      # Directory for aligned files
-VCF_DIR="${RESULTS_DIR}/variants"        # Directory for VCF files
-LOG_DIR="${RESULTS_DIR}/logs"            # Directory for logs
+DEMUX_DIR="./results/demultiplexed"  # Directory for demultiplexed files
+QC_DIR="./results/qc_reports"        # Directory for quality reports
+TRIM_DIR="./results/trimmed"         # Directory for trimmed files
+ALIGN_DIR="./results/alignment"      # Directory for aligned files
+VCF_DIR="./results/variants"        # Directory for VCF files
+LOG_DIR="./logs"            # Directory for logs
 
+# -----------------------------
 # Create required directories
-mkdir -p ${DEMUX_DIR} ${QC_DIR} ${TRIM_DIR} ${ALIGN_DIR} ${VCF_DIR} ${LOG_DIR}  # Create necessary directories
+# -----------------------------
+mkdir -p results logs ${DEMUX_DIR} ${QC_DIR} ${TRIM_DIR} ${ALIGN_DIR} ${VCF_DIR} ${LOG_DIR}  # Create necessary directories
 
 # -----------------------------
 # Set SNP Effect Database based on REF_GENOME
