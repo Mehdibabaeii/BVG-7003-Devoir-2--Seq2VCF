@@ -66,6 +66,7 @@ Clone the repository and ensure tools are accessible from your `$PATH`:
 ```bash
 git clone https://github.com/yourgroup/Seq2VCF.git
 cd Seq2VCF
+```
 
 ---
 
