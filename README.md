@@ -130,4 +130,4 @@ java -Xmx4g -jar snpEff.jar annotate -v GRCh37.75 variants/final_filtered.vcf.gz
 
 ## Authors
 
-This pipeline was collaboratively developed by [Author 1], [Author 2], [Author 3], and [Author 4] as part of BVG-7003 Assignment 2.
+This pipeline was collaboratively developed by Edouard Reed-Métayer, Ladan Ajdanian, Marc-Atoine Chiasson and Mehdi Babaei as part of BVG-7003 Assignment 2.
