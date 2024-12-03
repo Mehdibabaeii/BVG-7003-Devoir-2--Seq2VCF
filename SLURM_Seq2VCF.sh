@@ -113,3 +113,20 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Variant Calling Complete. Final VCF file is at: ${VCF_DIR}/variants_sorted.vcf.gz"
+
+# -----------------------------
+# Step 6: Functional Annotation with SnpEff (Optional)
+# -----------------------------
+echo "Starting Variant Annotation with SnpEff..."
+java -Xmx4g -jar snpEff.jar annotate -v ${REF_GENOME} ${VCF_DIR}/variants_sorted.vcf.gz > ${VCF_DIR}/variants_annotated.vcf
+
+if [ $? -ne 0 ]; then
+    echo "Error during Variant Annotation with SnpEff."
+    exit 1
+fi
+
+# Compress and index the annotated VCF
+bgzip -c ${VCF_DIR}/variants_annotated.vcf > ${VCF_DIR}/variants_annotated.vcf.gz
+tabix -p vcf ${VCF_DIR}/variants_annotated.vcf.gz
+
+echo "Annotation Complete. Annotated VCF file is at: ${VCF_DIR}/variants_annotated.vcf.gz"
