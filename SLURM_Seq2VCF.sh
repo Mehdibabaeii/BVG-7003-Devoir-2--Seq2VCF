@@ -41,11 +41,6 @@ LOG_DIR="./logs"            # Directory for logs
 mkdir -p results logs ${DEMUX_DIR} ${QC_DIR} ${TRIM_DIR} ${ALIGN_DIR} ${VCF_DIR} ${LOG_DIR}  # Create necessary directories
 
 # -----------------------------
-# Set SNP Effect Database based on REF_GENOME
-# -----------------------------
-SNP_EFFECT_DB=${SNP_EFFECT_DB}  # Use value deffine in parameters
-
-# -----------------------------
 # Step 1: Demultiplexing
 # -----------------------------
 LOG_FILE="${LOG_DIR}/demultiplexing_$(date +%Y%m%d%H%M%S).log"
@@ -157,8 +152,11 @@ echo "Variant Calling Complete. Final VCF file is at: ${VCF_DIR}/variants_sorted
 # -----------------------------
 # Step 6: Functional Annotation with SnpEff (Optional)
 # -----------------------------
+
 LOG_FILE="${LOG_DIR}/annotation_$(date +%Y%m%d%H%M%S).log"
 echo "Starting Variant Annotation with SnpEff..." | tee -a ${LOG_FILE}
+
+SNP_EFFECT_DB=${SNP_EFFECT_DB}  # Use value deffine in parameters
 
 # Vérifie si SnpEff est installé
 if ! command -v java &> /dev/null; then
