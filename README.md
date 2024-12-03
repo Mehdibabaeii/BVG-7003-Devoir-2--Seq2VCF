@@ -96,7 +96,7 @@ Use `squeue` (or equivalent) to track SLURM job status.
 
 ## Log Files and Troubleshooting
 
-- Logs are generated at each step, stored in `logs/`.
+- Logs are generated at each step.
 - Check logs for error messages to troubleshoot issues:
   - Ensure input files are correctly formatted and indexed.
   - Verify dependencies are properly installed.
