@@ -62,7 +62,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-cd -
+
 echo "Demultiplexing Complete." | tee -a ${LOG_FILE}
 
 # -----------------------------
