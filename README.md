@@ -65,7 +65,7 @@ Modules can be loaded via your system's environment manager.
 Clone the repository and ensure tools are accessible from your `$PATH`:
 ```bash
 git clone git@github.com:Mehdibabaeii/BVG-7003-Devoir-2--Seq2VCF.git
-cd Seq2VCF
+cd BVG-7003-Devoir-2--Seq2VCF
 ```
 
 ---
