@@ -39,7 +39,7 @@ Pipeline results are stored in the following directories:
   ├── trimmed/                # Adapter-trimmed reads
   ├── alignment/              # Aligned and indexed BAM files
   ├── variants/               # Filtered VCF files
-
+```
 ---
 
 ## Software Dependencies and Installation
