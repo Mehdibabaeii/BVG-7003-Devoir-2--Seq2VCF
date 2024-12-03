@@ -64,7 +64,7 @@ Modules can be loaded via your system's environment manager.
 
 Clone the repository and ensure tools are accessible from your `$PATH`:
 ```bash
-git clone https://github.com/yourgroup/Seq2VCF.git
+git clone git@github.com:Mehdibabaeii/BVG-7003-Devoir-2--Seq2VCF.git
 cd Seq2VCF
 ```
 
@@ -130,4 +130,4 @@ java -Xmx4g -jar snpEff.jar annotate -v GRCh37.75 variants/final_filtered.vcf.gz
 
 ## Authors
 
-This pipeline was collaboratively developed by Edouard Reed-Métayer, Ladan Ajdanian, Marc-Atoine Chiasson and Mehdi Babaei as part of BVG-7003 Assignment 2.
+This pipeline was collaboratively developed by Edouard Reed-Métayer, Ladan Ajdanian, Marc-Atoine Chiasson, and Mehdi Babaei as part of BVG-7003 Assignment 2.
