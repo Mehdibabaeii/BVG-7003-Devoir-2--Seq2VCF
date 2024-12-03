@@ -5,13 +5,22 @@
 # -----------------------------
 source parameters.conf
 
+# -----------------------------
+# SLURM directives for resource allocation
+# -----------------------------
+#SBATCH --time=${SBATCH_TIME}           # Use the time allocated in parameters.conf
+#SBATCH --mem=${SBATCH_MEM}             # Use the memory allocated in parameters.conf
+#SBATCH --cpus-per-task=${THREADS}      # Use the number of threads allocated in parameters.conf
+
+# -----------------------------
 # Derived Paths
+# -----------------------------
 DEMUX_DIR="${RESULTS_DIR}/demultiplexed"  # Directory for demultiplexed files
-QC_DIR="${RESULTS_DIR}/qc_reports"          # Directory for quality reports
-TRIM_DIR="${RESULTS_DIR}/trimmed"           # Directory for trimmed files
-ALIGN_DIR="${RESULTS_DIR}/alignment"         # Directory for aligned files
-VCF_DIR="${RESULTS_DIR}/variants"            # Directory for VCF files
-LOG_DIR="${RESULTS_DIR}/logs"                # Directory for logs
+QC_DIR="${RESULTS_DIR}/qc_reports"        # Directory for quality reports
+TRIM_DIR="${RESULTS_DIR}/trimmed"         # Directory for trimmed files
+ALIGN_DIR="${RESULTS_DIR}/alignment"      # Directory for aligned files
+VCF_DIR="${RESULTS_DIR}/variants"        # Directory for VCF files
+LOG_DIR="${RESULTS_DIR}/logs"            # Directory for logs
 
 # Create required directories
 mkdir -p ${DEMUX_DIR} ${QC_DIR} ${TRIM_DIR} ${ALIGN_DIR} ${VCF_DIR} ${LOG_DIR}  # Create necessary directories
@@ -87,7 +96,7 @@ if [ -z "${ADAPTER_SEQ}" ]; then
 fi
 
 # Parallelize trimming using GNU Parallel for efficiency
-ls ${DATA_DIR}/*.fq | parallel -j 8 'base=$(basename {} .fq); cutadapt -a ${ADAPTER_SEQ} -m ${MIN_LENGTH} -o ${TRIM_DIR}/{/.}_trimmed.fq.gz {}' 2>&1 | tee -a ${LOG_FILE}
+ls ${DATA_DIR}/*.fq | parallel -j ${THREADS} 'base=$(basename {} .fq); cutadapt -a ${ADAPTER_SEQ} -m ${MIN_LENGTH} -o ${TRIM_DIR}/{/.}_trimmed.fq.gz {}' 2>&1 | tee -a ${LOG_FILE}
 
 if [ $? -ne 0 ]; then
     echo "Error during Adapter Trimming." | tee -a ${LOG_FILE}
@@ -168,4 +177,4 @@ fi
 bgzip -c ${VCF_DIR}/variants_annotated.vcf > ${VCF_DIR}/variants_annotated.vcf.gz
 tabix -p vcf ${VCF_DIR}/variants_annotated.vcf.gz
 
-echo "Annotation Complete. Annotated VCF file is at: ${VCF_DIR}/variants_annotated.vcf.gz" | tee -a ${LOG_FILE}
+echo "Annotation Complete. Annotated VCF
