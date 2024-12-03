@@ -7,12 +7,12 @@ This repository contains a bioinformatics pipeline designed to process raw seque
 ## Purpose and Functionality
 
 The pipeline integrates essential steps for variant calling into a single streamlined workflow, automating tasks such as:
-1. Quality Control (QC): Assesses sequencing quality.
-2. Adapter Trimming: Removes adapters and filters low-quality reads.
-3. Alignment: Maps reads to a reference genome.
-4. Post-processing: Sorts, indexes, and cleans BAM files.
-5. Variant Calling: Detects SNPs and indels, outputting filtered VCF files.
-6. (Optional Bonus) Annotation: Adds functional insights to variants.
+1. **Quality Control (QC)**: Assesses sequencing quality.
+2. **Adapter Trimming**: Removes adapters and filters low-quality reads.
+3. **Alignment**: Maps reads to a reference genome.
+4. **Post-processing**: Sorts, indexes, and cleans BAM files.
+5. **Variant Calling**: Detects SNPs and indels, outputting filtered VCF files.
+6. **(Optional Bonus) Annotation**: Adds functional insights to variants.
 
 ---
 
