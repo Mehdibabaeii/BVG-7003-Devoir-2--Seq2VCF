@@ -17,6 +17,25 @@ LOG_DIR="${RESULTS_DIR}/logs"                # Directory for logs
 mkdir -p ${DEMUX_DIR} ${QC_DIR} ${TRIM_DIR} ${ALIGN_DIR} ${VCF_DIR} ${LOG_DIR}  # Create necessary directories
 
 # -----------------------------
+# Set SNP Effect Database based on REF_GENOME
+# -----------------------------
+
+# Extract the base name of the reference genome file (no extension)
+REF_GENOME_BASENAME=$(basename ${REF_GENOME} .fa)
+
+# Logic to determine the corresponding SnpEff database based on the reference genome
+if [[ ${REF_GENOME_BASENAME} == "rice" ]]; then
+    SNP_EFFECT_DB="rice"
+elif [[ ${REF_GENOME_BASENAME} == "maize" ]]; then
+    SNP_EFFECT_DB="maize"
+elif [[ ${REF_GENOME_BASENAME} == "arabidopsis" ]]; then
+    SNP_EFFECT_DB="athaliana"
+else
+    echo "Warning: No predefined SnpEff database found for ${REF_GENOME_BASENAME}. Using custom genome annotation."
+    SNP_EFFECT_DB="custom_genome"  # Fall back to custom genome if no match
+fi
+
+# -----------------------------
 # Step 1: Demultiplexing
 # -----------------------------
 LOG_FILE="${LOG_DIR}/demultiplexing_$(date +%Y%m%d%H%M%S).log"
@@ -83,7 +102,7 @@ LOG_FILE="${LOG_DIR}/alignment_$(date +%Y%m%d%H%M%S).log"
 echo "Starting Alignment..." | tee -a ${LOG_FILE}
 for fq in ${TRIM_DIR}/*_trimmed.fq.gz; do
     base=$(basename "$fq" _trimmed.fq.gz)  # Extract base name of the file
-    bwa mem -t 10 ${REF_GENOME} "$fq" > ${ALIGN_DIR}/${base}.sam  # Align with BWA
+    bwa mem -t ${THREADS} ${REF_GENOME} "$fq" > ${ALIGN_DIR}/${base}.sam  # Align with BWA
 
     if [ $? -ne 0 ]; then
         echo "Error in Alignment for $fq." | tee -a ${LOG_FILE}
@@ -137,8 +156,8 @@ if ! command -v java &> /dev/null; then
     exit 1
 fi
 
-# Annoter les variantes avec SnpEff en utilisant le génome de référence spécifié dans parameters.conf
-java -Xmx4g -jar snpEff.jar annotate -v ${REF_GENOME} ${VCF_DIR}/variants_sorted.vcf.gz > ${VCF_DIR}/variants_annotated.vcf
+# Annoter les variantes avec SnpEff en utilisant la base de données spécifiée
+java -Xmx4g -jar snpEff.jar annotate -v ${SNP_EFFECT_DB} ${VCF_DIR}/variants_sorted.vcf.gz > ${VCF_DIR}/variants_annotated.vcf
 
 if [ $? -ne 0 ]; then
     echo "Error during Variant Annotation with SnpEff." | tee -a ${LOG_FILE}
