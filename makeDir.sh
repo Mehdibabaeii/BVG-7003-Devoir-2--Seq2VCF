@@ -1,9 +1,9 @@
 #!/bin/bash
 
-printf "\nCréation de la structure des répertoires : data, barcodes, refgenome, results, logs\n"
+printf "\nCréation de la structure des répertoires : results, logs\n"
 
 # Création des dossiers principaux
-for i in data barcodes refgenome results logs
+for i in results logs
 do
     mkdir -p $i
 done
