@@ -1,7 +1,25 @@
+#!/bin/bash
+
+
+# -----------------------------
+# Load Modules
+# -----------------------------
+module load python/3.5
+module load java/jdk/1.8.0_102
+module load cutadapt/2.1
+module load sabre/1.000
+module load bwa/0.7.17
+module load samtools/1.8
+module load bcftools/1.15
+module load fastqc/0.11.2
+
+
 # -----------------------------
 # Load Parameters
 # -----------------------------
 source parameters.conf
+
+
 
 # Derived Paths
 DEMUX_DIR="${RESULTS_DIR}/demultiplexed"
@@ -12,6 +30,7 @@ VCF_DIR="${RESULTS_DIR}/variants"
 
 # Create required directories
 mkdir -p ${DEMUX_DIR} ${QC_DIR} ${TRIM_DIR} ${ALIGN_DIR} ${VCF_DIR}
+
 
 # -----------------------------
 # Step 1: Demultiplexing
@@ -111,6 +130,3 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Variant Calling Complete. Final VCF file is at: ${VCF_DIR}/variants_sorted.vcf.gz"
-
-
-
