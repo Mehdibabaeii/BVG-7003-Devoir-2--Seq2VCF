@@ -1,14 +1,4 @@
 #!/bin/bash
-#SBATCH -D /project/dator3/users/mebab12/BVGSNP/BVG-7003-Devoir-2--Seq2VCF/
-#SBATCH -J CanGBS
-#SBATCH -o gbs-%j.out
-#SBATCH -c 10
-#SBATCH -p soyagen
-#SBATCH -A soyagen
-#SBATCH --mail-type=ALL
-#SBATCH --mail-user=mehdi.babaei.1@ulaval.ca
-#SBATCH --time=10-00:00
-#SBATCH --mem=15G
 
 # -----------------------------
 # Load Modules
