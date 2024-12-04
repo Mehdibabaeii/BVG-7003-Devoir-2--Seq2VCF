@@ -29,7 +29,7 @@ ANOT_DIR="${RESULTS_DIR}/annoted_variants"
 
 # Create required directories
 mkdir -p ${DEMUX_DIR} ${QC_DIR} ${TRIM_DIR} ${ALIGN_DIR} ${VCF_DIR} ${ANOT_DIR}
-         
+
 # -----------------------------
 # Step 1: Demultiplexing
 # -----------------------------
@@ -135,7 +135,7 @@ echo "Variant Calling Complete. Final VCF file is at: ${VCF_DIR}/variants_sorted
 
 if [ "${RUN_ANNOTATION}" = "true" ]; then
     echo "Annotation is enabled. Starting SnpEff annotation..."
-    
+
     # Vérifiez si snpEff est disponible
     if [ ! -f ${SNP_EFF_PATH} ]; then
         echo "Error: snpEff.jar not found at ${SNP_EFF_PATH}!"
