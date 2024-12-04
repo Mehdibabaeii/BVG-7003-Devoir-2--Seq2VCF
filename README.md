@@ -1,8 +1,3 @@
-
-Voici le texte sous le format R Markdown :
-
-rmarkdown
-Copier le code
 ---
 title: "Seq2VCF Pipeline"
 author: "Project Team"
