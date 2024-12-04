@@ -142,6 +142,19 @@ if [ "${RUN_ANNOTATION}" = "true" ]; then
         exit 1
     fi
 
+    # Vérifiez si le génome de référence est disponible
+    if [ ! -d "${HOME}/.snpEff/data/${SNP_EFFECT_DB}" ]; then
+        echo "Genome ${SNP_EFFECT_DB} not found. Attempting to download..."
+        java -jar ${SNP_EFF_PATH} download ${SNP_EFFECT_DB}
+        if [ $? -ne 0 ]; then
+            echo "Error: Could not download genome ${SNP_EFFECT_DB}. Check your network or database name."
+            exit 1
+        fi
+        echo "Genome ${SNP_EFFECT_DB} successfully downloaded."
+    else
+        echo "Genome ${SNP_EFFECT_DB} is already available. Proceeding with annotation."
+    fi
+
     # Exécutez l'annotation
     java -jar ${SNP_EFF_PATH} ann ${SNP_EFFECT_DB} ${VCF_DIR}/variants_sorted.vcf.gz > ${ANOT_DIR}/variants_annotated.vcf
     bgzip -c ${ANOT_DIR}/variants_annotated.vcf > ${ANOT_DIR}/variants_annotated.vcf.gz
@@ -156,4 +169,5 @@ if [ "${RUN_ANNOTATION}" = "true" ]; then
 else
     echo "Annotation is disabled. Skipping SnpEff annotation."
 fi
+
 
