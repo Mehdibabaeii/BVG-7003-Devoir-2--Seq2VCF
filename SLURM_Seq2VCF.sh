@@ -133,40 +133,27 @@ echo "Variant Calling Complete. Final VCF file is at: ${VCF_DIR}/variants_sorted
 # Step 6: Functional Annotation with SnpEff (Optional)
 # -----------------------------
 
-# Vérifier si le chemin vers snpEff est défini correctement
-if [ ! -f ${SNP_EFF_PATH} ]; then
-    echo "Error: snpEff.jar not found at ${SNP_EFF_PATH}!"
-    exit 1
-fi
-
-# Définir un répertoire local pour les bases de données SnpEff
-SNPEFF_DATA_DIR="${HOME}/snpeff_data"
-mkdir -p ${SNPEFF_DATA_DIR}
-export SNPEFF_HOME=${SNPEFF_DATA_DIR}
-
-# Vérifier si la base de données Wm82.a2.v1 est déjà installée
-if [ ! -d "${SNPEFF_DATA_DIR}/data/Wm82.a2.v1" ]; then
-    echo "Base de données Wm82.a2.v1 non trouvée. Téléchargement en cours..."
-    java -jar ${SNP_EFF_PATH} download -v Wm82.a2.v1
-    if [ $? -ne 0 ]; then
-        echo "Erreur lors du téléchargement de la base de données Wm82.a2.v1."
+if [ "${RUN_ANNOTATION}" = "true" ]; then
+    echo "Annotation is enabled. Starting SnpEff annotation..."
+    
+    # Vérifiez si snpEff est disponible
+    if [ ! -f ${SNP_EFF_PATH} ]; then
+        echo "Error: snpEff.jar not found at ${SNP_EFF_PATH}!"
         exit 1
     fi
+
+    # Exécutez l'annotation
+    java -jar ${SNP_EFF_PATH} ann ${SNP_EFFECT_DB} ${VCF_DIR}/variants_sorted.vcf.gz > ${ANOT_DIR}/variants_annotated.vcf
+    bgzip -c ${ANOT_DIR}/variants_annotated.vcf > ${ANOT_DIR}/variants_annotated.vcf.gz
+    tabix -p vcf ${ANOT_DIR}/variants_annotated.vcf.gz
+
+    if [ $? -ne 0 ]; then
+        echo "Error during SnpEff annotation. Check logs."
+        exit 1
+    fi
+
+    echo "Annotation complete. Annotated variants stored in: ${ANOT_DIR}/variants_annotated.vcf.gz"
 else
-    echo "Base de données Wm82.a2.v1 déjà installée."
+    echo "Annotation is disabled. Skipping SnpEff annotation."
 fi
 
-# Annoter les variantes avec SnpEff
-echo "Annotation des variantes avec SnpEff..."
-java -jar ${SNP_EFF_PATH} ann Wm82.a2.v1 ${VCF_DIR}/variants_sorted.vcf.gz > ${ANOT_DIR}/variants_annotated.vcf
-
-# Compresser et indexer le fichier annoté
-bgzip -c ${ANOT_DIR}/variants_annotated.vcf > ${ANOT_DIR}/variants_annotated.vcf.gz
-tabix -p vcf ${ANOT_DIR}/variants_annotated.vcf.gz
-
-if [ $? -ne 0 ]; then
-    echo "Erreur lors de l'annotation avec SnpEff. Vérifiez les logs."
-    exit 1
-fi
-
-echo "Annotation complète. Le fichier annoté est : ${ANOT_DIR}/variants_annotated.vcf.gz"
