@@ -133,6 +133,9 @@ echo "Variant Calling Complete. Final VCF file is at: ${VCF_DIR}/variants_sorted
 # Step 6: Functional Annotation with SnpEff (Optional)
 # -----------------------------
 
+# Charger les paramètres du fichier parameters.conf
+source parameters.conf
+
 if [ "${RUN_ANNOTATION}" = "true" ]; then
     echo "Annotation is enabled. Starting SnpEff annotation..."
 
