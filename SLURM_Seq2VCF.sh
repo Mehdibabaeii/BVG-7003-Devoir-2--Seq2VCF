@@ -18,8 +18,6 @@ module load fastqc/0.11.2
 # -----------------------------
 source parameters.conf
 
-
-
 # Derived Paths
 DEMUX_DIR="${RESULTS_DIR}/demultiplexed"
 QC_DIR="${RESULTS_DIR}/qc_reports"
