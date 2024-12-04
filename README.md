@@ -1,81 +1,77 @@
 # Seq2VCF Pipeline
-
-This repository contains a bioinformatics pipeline for processing raw sequencing data into high-quality Variant Call Format (VCF) files. Designed for genotyping-by-sequencing (GBS) data, the pipeline is modular, efficient, and suitable for high-throughput batch processing.
+This repository provides a comprehensive bioinformatics pipeline for processing raw sequencing data and generating high-quality Variant Call Format (VCF) files. The pipeline is specifically suited for genotyping-by-sequencing (GBS) data and automates multiple steps required in genomic analyses, including quality control, trimming, alignment, and variant calling.
 
 ## Pipeline Overview
 
 The pipeline automates the following steps:
-1. **Demultiplexing**: Splits sequencing reads based on barcodes.
-2. **Quality Control**: Assesses sequencing quality metrics.
-3. **Adapter Trimming**: Removes adapters and short reads.
-4. **Alignment**: Maps reads to a reference genome.
-5. **Variant Calling**: Identifies and filters genetic variants.
 
-Each step is parameterized for reproducibility and includes robust error-handling mechanisms.
+1. **Demultiplexing**: Splits sequencing reads based on barcode sequences to assign them to the correct samples.
+2. **Quality Control (QC)**: Evaluate the quality of sequencing data using FastQC to ensure it meets the required standards.
+3. **Adapter Trimming**: Removes adapter sequences and short reads to ensure high-quality data for downstream analysis.
+4. **Alignment**: Maps reads to a reference genome using BWA for variant discovery.
+5. **Variant Calling**: Detects and filters genetic variants based on several user-defined thresholds.
+
+Each step is parameterized for reproducibility and includes error-handling mechanisms to ensure robustness during execution.
 
 ## System Requirements
 
-### Software Dependencies
-Ensure the following tools are installed and available:
-- **Python (v3.5+)**
-- **Java (OpenJDK 1.8.0_102+)**
-- **Cutadapt (v2.1+)**
-- **Sabre (v1.000+)**
-- **BWA (v0.7.17+)**
-- **SAMtools (v1.8+)**
-- **BCFtools (v1.15+)**
-- **FastQC (v0.11.2+)**
+The pipeline requires the following software dependencies. Please ensure these tools are installed and available:
 
-Modules can be loaded using your system's environment manager.
+- **Python** (v3.5+)
+- **Java** (OpenJDK 1.8.0_102+)
+- **Cutadapt** (v2.1+)
+- **Sabre** (v1.000+)
+- **BWA** (v0.7.17+)
+- **SAMtools** (v1.8+)
+- **BCFtools** (v1.15+)
+- **FastQC** (v0.11.2+)
+- **SnpEff** (v5.2e) - for optional variant annotation
 
-## Input Requirements
+These dependencies can be loaded using your system's environment manager, such as `module load`.
 
-### Directory Structure
-Organize your input files as follows:
+## Directory Structure
+
+Organize your input files as follows to ensure the pipeline functions correctly:
+
 ```bash
 /project/
   ├── data/
-  │   ├── raw_data.fq.gz      # Raw sequencing reads
-  │   ├── barcodes.txt        # Barcode file for demultiplexing
+  │   ├── raw_data.fq.gz      # Raw sequencing reads in FASTQ format
+  │   ├── barcodes.txt        # Barcode file for demultiplexing (tab-separated)
   ├── refgenome/
   │   ├── reference.fa        # Reference genome in FASTA format
-  ├── results/                # Directory for outputs
+  ├── results/                # Directory for pipeline outputs
 ```
 
+### Input Files
 
-## Input Files
+- **Raw Sequencing Data**: Sequencing reads in `.fq.gz` format, located in `/data`.
+- **Barcodes File**: A tab-separated file containing barcode sequences and associated sample names, located in `/data/barcodes.txt`.
+- **Reference Genome**: FASTA format reference genome located in `/refgenome/`, which should be indexed using `bwa index` and `samtools faidx`.
 
-### Raw Sequencing Data
-- **File format**: `*.fq.gz`
-- **Location**: `/data`
+## Configuration Parameters
 
-### Barcodes File
-- **Format**: Tab-separated file with columns:
-  - Barcode sequence
-  - Sample name
-- **Location**: `/data/barcodes.txt`
+The parameters are specified in the `parameters.conf` file. Key parameters include:
 
-### Reference Genome
-- **Format**: FASTA
-- **Indexing**: Must be indexed using `bwa index` and `samtools faidx`.
+- **ADAPTER_SEQ**: The adapter sequence to trim from reads.
+- **MIN_LENGTH**: The minimum length of reads to retain after adapter trimming.
 
-## Parameters
-Parameters are loaded from `parameters.conf`. Key variables include:
-- **ADAPTER_SEQ**: Sequencing adapter to trim.
-- **MIN_LENGTH**: Minimum length for retained reads post-trimming.
-- **Variant calling thresholds**:
-  - **QUAL_THRESHOLD**: Minimum variant quality score.
-  - **DEPTH_THRESHOLD**: Minimum read depth.
-  - **MAX_MISSING**: Maximum fraction of missing data per variant.
-  - **MAF_THRESHOLD**: Minimum minor allele frequency.
+### Variant Calling Thresholds
 
-## Output Structure
-Pipeline results are stored under `results/`:
+- **QUAL_THRESHOLD**: The minimum variant quality score.
+- **DEPTH_THRESHOLD**: The minimum depth (coverage) required for a variant.
+- **MAX_MISSING**: The maximum fraction of missing data allowed for each variant.
+- **MAF_THRESHOLD**: The minimum minor allele frequency for variant inclusion.
+
+## Output Directory Structure
+
+Pipeline results are stored in the `results/` directory, organized as follows:
+
 ```bash
 /results/
-  ├── demultiplexed/          # Reads grouped by samples
-  ├── qc_reports/             # Quality control reports
-  ├── trimmed/                # Adapter-trimmed reads
+  ├── demultiplexed/          # Demultiplexed reads for each sample
+  ├── qc_reports/             # Quality control reports generated by FastQC
+  ├── trimmed/                # Trimmed reads after adapter removal
   ├── alignment/              # Aligned BAM files
   ├── variants/               # Filtered VCF files
 ```
@@ -83,76 +79,120 @@ Pipeline results are stored under `results/`:
 ## Pipeline Steps
 
 ### Step 1: Demultiplexing
-**Tool**: Sabre  
+
+**Tool Used**: Sabre
+
 **Command**:
+
 ```bash
-sabre se -f *.fq.gz -b barcodes.txt -u results/demultiplexed/unmatched.fq.gz > results/demultiplexed/demux.log 2>&1
+sabre se -f *.fq.gz -b ${BARCODES_FILE} -u ${DEMUX_DIR}/unmatched.fq.gz > ${DEMUX_DIR}/demux.log 2>&1
 ```
-**Output**: Reads split into sample-specific files. Logs are stored for debugging.
+
+**Description**: Demultiplexes the raw sequencing data based on the barcode file, splitting the reads into sample-specific files. Any unmatched reads are stored in the `unmatched.fq.gz` file.
+
+**Output**: Demultiplexed reads for each sample are stored in `results/demultiplexed/`. Log files are saved in `results/demultiplexed/demux.log`.
 
 ### Step 2: Quality Control
-**Tool**: FastQC  
+
+**Tool Used**: FastQC
+
 **Command**:
+
 ```bash
-fastqc -t 10 -o results/qc_reports/ data/*.fq.gz
+fastqc -t 10 -o ${QC_DIR} ${DATA_DIR}/*.fq
 ```
-**Output**: Reports stored in `results/qc_reports/`. Key metrics include:
-- Sequence quality scores.
-- Adapter content.
+
+**Description**: FastQC runs quality control on the raw sequencing data, generating reports that include metrics such as sequence quality scores and adapter content.
+
+**Output**: QC reports are saved in `results/qc_reports/`.
 
 ### Step 3: Adapter Trimming
-**Tool**: Cutadapt  
+
+**Tool Used**: Cutadapt
+
 **Command**:
+
 ```bash
-cutadapt -a $ADAPTER_SEQ -m $MIN_LENGTH -o results/trimmed/{sample}_trimmed.fq.gz {input_file}
+cutadapt -a ${ADAPTER_SEQ} -m ${MIN_LENGTH} -o ${TRIM_DIR}/${base}_trimmed.fq.gz "$fq"
 ```
-**Output**: Trimmed reads stored in `results/trimmed/`.
+
+**Description**: Cutadapt trims adapter sequences from the reads, ensuring that only high-quality sequences are retained. The minimum length of the reads after trimming is controlled by `MIN_LENGTH`.
+
+**Output**: Trimmed reads are saved in `results/trimmed/`.
 
 ### Step 4: Alignment
-**Tool**: BWA and SAMtools  
-**Commands**:
-- **Align reads**:
-  ```bash
-  bwa mem -t 10 refgenome/reference.fa {input_file} > alignment/{sample}.sam
-  ```
-- **Convert and sort BAM**:
-  ```bash
-  samtools view -bS alignment/{sample}.sam | samtools sort > alignment/{sample}_sorted.bam
-  samtools index alignment/{sample}_sorted.bam
-  ```
-**Output**: Indexed BAM files stored in `results/alignment/`.
 
-### Step 5: Variant Calling
-**Tool**: BCFtools  
-**Commands**:
-- **Generate raw variants**:
-  ```bash
-  samtools mpileup -g -f refgenome/reference.fa -b bam_list.txt | bcftools call -mv -Ov > variants/raw.vcf
-  ```
-- **Filter variants**:
-  ```bash
-  bcftools filter -e "QUAL<$QUAL_THRESHOLD || DP<$DEPTH_THRESHOLD" variants/raw.vcf > variants/filtered.vcf
-  bcftools filter -e "F_MISSING>$MAX_MISSING || MAF<$MAF_THRESHOLD" variants/filtered.vcf > variants/final_filtered.vcf
-  ```
-- **Compress and index final VCF**:
-  ```bash
-  bgzip -c variants/final_filtered.vcf > variants/final_filtered.vcf.gz
-  tabix -p vcf variants/final_filtered.vcf.gz
-  ```
-**Output**: Final filtered VCF stored in `results/variants/final_filtered.vcf.gz`.
+**Tool Used**: BWA
 
-## How to Run
-1. **Set Parameters**: Update paths and thresholds in `parameters.conf`.
-2. **Submit Job**: Run the pipeline via SLURM:
-   ```bash
-   sbatch Seq2VCF_pipeline.sh
-   ```
-3. **Monitor Progress**: Check job status using:
-   ```bash
-   squeue
-   ```
+**Command**:
 
-## Troubleshooting
-- Logs are generated for each step to identify and debug errors.
-- Ensure all input files are correctly formatted and indexed.
+```bash
+bwa mem -t 10 ${REF_GENOME} "$fq" > ${ALIGN_DIR}/${base}.sam
+```
+
+**Description**: Aligns the trimmed reads to the reference genome using BWA. After alignment, SAM files are converted to BAM format, sorted, and indexed using SAMtools.
+
+**Output**: Aligned BAM files are stored in `results/alignment/`.
+
+### Step 5: Variant Calling with Filters
+
+**Tool Used**: SAMtools and BCFtools
+
+**Command**:
+
+```bash
+samtools mpileup -g -f ${REF_GENOME} -b ${VCF_DIR}/bam_list.txt | \
+bcftools call -mv -Ov -o ${VCF_DIR}/variants_raw.vcf
+```
+
+**Description**: SAMtools generates the pileup file from the aligned BAM files, and BCFtools is used to call variants. Filters are applied to remove low-quality variants, based on the user-defined thresholds in `parameters.conf`.
+
+**Output**: The filtered and sorted VCF file is stored in `results/variants/`.
+
+### Step 6: Variant Annotation (Optional)
+
+**Tool Used**: SnpEff
+
+**Command**:
+
+```bash
+java -Xmx4g -jar snpEff.jar annotate -v ${SNP_EFFECT_DB} ${VCF_DIR}/variants_sorted.vcf.gz > ${VCF_DIR}/variants_annotated.vcf
+```
+
+**Description**: SnpEff annotates the variants with functional information, such as gene names and the potential impact of mutations.
+
+**Output**: The annotated VCF file is stored in `results/variants/`.
+
+## Error Handling
+
+The pipeline includes robust error-handling mechanisms at each stage to ensure smooth execution. If any command fails, the pipeline stops and displays an error message, directing users to the log files for more information.
+
+## Customization
+
+You can adjust various parameters for each step by modifying the values in the `parameters.conf` file. The most commonly adjusted parameters include adapter sequences, minimum read length, and variant calling thresholds.
+
+## Example Usage
+
+Clone the repository:
+
+```bash
+git clone https://github.com/Mehdibabaeii/BVG-7003-Devoir-2--Seq2VCF.git
+```
+
+Set up your environment and load required modules:
+
+```bash
+module load python/3.5 java/jdk/1.8.0_102 cutadapt/2.1 sabre/1.000 bwa/0.7.17 samtools/1.8 bcftools/1.15 fastqc/0.11.2 snpEff/5.2e
+```
+
+Configure paths in `parameters.conf` as per your dataset.
+
+Run the pipeline:
+
+```bash
+./SLURM_Seq2VCF.sh
+```
+
+For more detailed instructions, please refer to the individual tool documentation (e.g., BWA, SAMtools, Cutadapt).
+
 
