@@ -25,9 +25,10 @@ QC_DIR="${RESULTS_DIR}/qc_reports"
 TRIM_DIR="${RESULTS_DIR}/trimmed"
 ALIGN_DIR="${RESULTS_DIR}/alignment"
 VCF_DIR="${RESULTS_DIR}/variants"
+ANOT_DIR="${RESULTS_DIR}/annoted_variants"
 
 # Create required directories
-mkdir -p ${DEMUX_DIR} ${QC_DIR} ${TRIM_DIR} ${ALIGN_DIR} ${VCF_DIR}
+mkdir -p ${DEMUX_DIR} ${QC_DIR} ${TRIM_DIR} ${ALIGN_DIR} ${VCF_DIR }${ANOT_DIR}
 
 # -----------------------------
 # Step 1: Demultiplexing
@@ -132,12 +133,40 @@ echo "Variant Calling Complete. Final VCF file is at: ${VCF_DIR}/variants_sorted
 # Step 6: Functional Annotation with SnpEff (Optional)
 # -----------------------------
 
-
+# Vérifier si le chemin vers snpEff est défini correctement
 if [ ! -f ${SNP_EFF_PATH} ]; then
     echo "Error: snpEff.jar not found at ${SNP_EFF_PATH}!"
     exit 1
 fi
 
-snpEff annotate -v ${SNP_EFF_PATH} ann ${SNP_EFFECT_DB} ${VCF_DIR}/variants_sorted.vcf.gz > ${VCF_DIR}/variants_annotated.vcf
-bgzip -c ${VCF_DIR}/variants_annotated.vcf > ${VCF_DIR}/variants_annotated.vcf.gz
-tabix -p vcf ${VCF_DIR}/variants_annotated.vcf.gz
+# Définir un répertoire local pour les bases de données SnpEff
+SNPEFF_DATA_DIR="${HOME}/snpeff_data"
+mkdir -p ${SNPEFF_DATA_DIR}
+export SNPEFF_HOME=${SNPEFF_DATA_DIR}
+
+# Vérifier si la base de données Wm82.a2.v1 est déjà installée
+if [ ! -d "${SNPEFF_DATA_DIR}/data/Wm82.a2.v1" ]; then
+    echo "Base de données Wm82.a2.v1 non trouvée. Téléchargement en cours..."
+    java -jar ${SNP_EFF_PATH} download -v Wm82.a2.v1
+    if [ $? -ne 0 ]; then
+        echo "Erreur lors du téléchargement de la base de données Wm82.a2.v1."
+        exit 1
+    fi
+else
+    echo "Base de données Wm82.a2.v1 déjà installée."
+fi
+
+# Annoter les variantes avec SnpEff
+echo "Annotation des variantes avec SnpEff..."
+java -jar ${SNP_EFF_PATH} ann Wm82.a2.v1 ${VCF_DIR}/variants_sorted.vcf.gz > ${ANOT_DIR}/variants_annotated.vcf
+
+# Compresser et indexer le fichier annoté
+bgzip -c ${ANOT_DIR}/variants_annotated.vcf > ${ANOT_DIR}/variants_annotated.vcf.gz
+tabix -p vcf ${ANOT_DIR}/variants_annotated.vcf.gz
+
+if [ $? -ne 0 ]; then
+    echo "Erreur lors de l'annotation avec SnpEff. Vérifiez les logs."
+    exit 1
+fi
+
+echo "Annotation complète. Le fichier annoté est : ${ANOT_DIR}/variants_annotated.vcf.gz"
