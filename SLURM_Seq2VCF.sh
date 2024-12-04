@@ -4,7 +4,7 @@
 # Load Modules
 # -----------------------------
 module load python/3.5
-
+module load java/jdk/22.0.2
 module load cutadapt/2.1
 module load sabre/1.000
 module load bwa/0.7.17
