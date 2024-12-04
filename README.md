@@ -72,7 +72,7 @@ Run the pipeline using the main script:
 Copier le code
 bash pipeline.sh
 ```
-
+---
 ## Log File Details and Troubleshooting
 The pipeline generates a log file (pipeline.log) for tracking progress and debugging.
 
