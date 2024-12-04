@@ -12,7 +12,6 @@ module load samtools/1.8
 module load bcftools/1.15
 module load fastqc/0.11.2
 
-
 # -----------------------------
 # Load Parameters
 # -----------------------------
