@@ -1,50 +1,61 @@
+
+Voici le texte sous le format R Markdown :
+
+rmarkdown
+Copier le code
+---
+title: "Seq2VCF Pipeline"
+author: "Project Team"
+output: github_document
+---
+
 # Seq2VCF Pipeline
 
-Le **Seq2VCF Pipeline** est un outil bioinformatique conçu pour traiter des données de séquençage brut et générer des fichiers Variant Call Format (VCF) de haute qualité. Ce pipeline automatise les étapes nécessaires, telles que la démultiplexation, le contrôle qualité, l’alignement, l’appel de variants et l’annotation fonctionnelle.
+The **Seq2VCF Pipeline** is a robust bioinformatics tool designed to process raw sequencing data and generate high-quality Variant Call Format (VCF) files. This pipeline streamlines genomic analysis through automated steps such as demultiplexing, quality control, alignment, variant calling, and functional annotation.
 
 ---
 
-## Objectif et Fonctionnalités
+## Purpose and Functionality
 
-Le pipeline a été développé pour traiter efficacement les données de génotypage par séquençage (GBS), permettant l’identification rapide et reproductible des variants génétiques. Ses principales caractéristiques sont :  
-- Traitement automatisé des lectures brutes jusqu’aux variants annotés.  
-- Prise en charge de plusieurs échantillons via la démultiplexation des codes-barres.  
-- Contrôle qualité complet et gestion des erreurs.
-
----
-
-## Formats des Fichiers d'Entrée et de Sortie
-
-### Formats d’entrée :
-1. **Données de séquençage brutes** : Fichiers FASTQ compressés (`.fq.gz`) contenant les lectures.  
-2. **Fichier de codes-barres** : Fichier texte tabulé contenant les codes-barres des échantillons (`barcodes.txt`).  
-3. **Génome de référence** : Fichier FASTA (`.fa`) contenant la séquence du génome.
-
-### Formats de sortie :
-1. **Lectures démultiplexées** : Fichiers FASTQ (`.fq.gz`) par échantillon.  
-2. **Rapports qualité** : Rapports HTML et texte générés par FastQC.  
-3. **Lectures alignées** : Fichiers BAM (`.bam`) par échantillon.  
-4. **Variants détectés** : Fichiers VCF (`.vcf`) contenant les variants détectés et filtrés.  
-5. **Variants annotés** : Fichiers VCF annotés (`.annotated.vcf`) avec des informations fonctionnelles (si activé).
+The pipeline was developed to handle genotyping-by-sequencing (GBS) data efficiently, enabling users to identify genetic variants in a streamlined and reproducible manner. It provides flexibility to adapt to various experimental setups by allowing configuration through parameter files. Key features include:  
+- Automated processing from raw reads to annotated variants.  
+- Support for multiple input samples via barcode demultiplexing.  
+- Comprehensive quality control and error handling.  
 
 ---
 
-## Dépendances et Étapes d’Installation
+## Input and Output File Formats
 
-### Logiciels requis :
-Le pipeline nécessite les outils suivants :  
-- **Python** (v3.5+)  
-- **Java** (v22.0.2+)  
-- **Cutadapt** (v2.1+)  
-- **Sabre** (v1.000+)  
-- **BWA** (v0.7.17+)  
-- **SAMtools** (v1.8+)  
-- **BCFtools** (v1.15+)  
-- **FastQC** (v0.11.2+)  
+### Input File Formats:
+- **Raw Sequencing Data**: Compressed FASTQ files (`.fq.gz`) containing sequencing reads.  
+- **Barcode File**: Tab-separated text file with sample barcodes (`barcodes.txt`).  
+- **Reference Genome**: FASTA format file (`.fa`) with the genome sequence.  
+
+### Output File Formats:
+- **Demultiplexed Reads**: FASTQ files (`.fq.gz`) for individual samples.  
+- **Quality Reports**: HTML and text reports from FastQC.  
+- **Aligned Reads**: BAM files (`.bam`) for each sample.  
+- **Variants**: VCF files (`.vcf`) with detected and filtered variants.  
+- **Annotated Variants**: Annotated VCF files (`.annotated.vcf`) with functional information (if enabled).  
+
+---
+
+## Dependencies and Installation Steps
+
+### Software Requirements:
+The pipeline requires the following tools:
+- **Python** (v3.5+)
+- **Java** (v22.0.2+)
+- **Cutadapt** (v2.1+)
+- **Sabre** (v1.000+)
+- **BWA** (v0.7.17+)
+- **SAMtools** (v1.8+)
+- **BCFtools** (v1.15+)
+- **FastQC** (v0.11.2+)
 - **SnpEff** (v5.2e)
 
-### Étapes d’installation :
-1. Cloner le dépôt :
+### Installation Steps:
+1. Clone the repository:
    ```bash
    git clone https://github.com/username/Seq2VCF.git
    cd Seq2VCF
