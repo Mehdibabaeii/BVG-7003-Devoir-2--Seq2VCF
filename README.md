@@ -1,9 +1,3 @@
----
-title: "Seq2VCF Pipeline"
-author: "Project Team"
-output: github_document
----
-
 # Seq2VCF Pipeline
 
 The **Seq2VCF Pipeline** is a robust bioinformatics tool designed to process raw sequencing data and generate high-quality Variant Call Format (VCF) files. This pipeline streamlines genomic analysis through automated steps such as demultiplexing, quality control, alignment, variant calling, and functional annotation.
