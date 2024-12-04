@@ -18,14 +18,14 @@ Each step is parameterized for reproducibility and includes error-handling mecha
 The pipeline requires the following software dependencies. Please ensure these tools are installed and available:
 
 - **Python** (v3.5+)
-- **Java** (OpenJDK 1.8.0_102+)
+- **Java** (OpenJDK 22.0.2+)
 - **Cutadapt** (v2.1+)
 - **Sabre** (v1.000+)
 - **BWA** (v0.7.17+)
 - **SAMtools** (v1.8+)
 - **BCFtools** (v1.15+)
 - **FastQC** (v0.11.2+)
-- **SnpEff** (v5.2e) - for optional variant annotation
+- **SnpEff** (v5.2e) 
 
 These dependencies can be loaded using your system's environment manager, such as `module load`.
 
