@@ -28,8 +28,8 @@ VCF_DIR="${RESULTS_DIR}/variants"
 ANOT_DIR="${RESULTS_DIR}/annoted_variants"
 
 # Create required directories
-mkdir -p ${DEMUX_DIR} ${QC_DIR} ${TRIM_DIR} ${ALIGN_DIR} ${VCF_DIR }${ANOT_DIR}
-
+mkdir -p ${DEMUX_DIR} ${QC_DIR} ${TRIM_DIR} ${ALIGN_DIR} ${VCF_DIR} ${ANOT_DIR}
+         
 # -----------------------------
 # Step 1: Demultiplexing
 # -----------------------------
