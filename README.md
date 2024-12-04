@@ -85,4 +85,4 @@ The pipeline generates a log file (pipeline.log) for tracking progress and debug
 **Annotation Errors**: If SnpEff fails, ensure the correct genome database is downloaded and specified in parameters.conf.
 **Out of Memory**: Allocate sufficient memory to Java-based tools (e.g., SnpEff). Edit JAVA_OPTS in parameters.conf if needed.
 
-For additional help, refer to the documentation in the **docs/** folder or contact the maintainer.
+For additional help, refer to the documentation in the **wiki/** folder or contact the maintainer.
