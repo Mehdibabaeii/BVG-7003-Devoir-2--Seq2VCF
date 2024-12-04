@@ -67,10 +67,9 @@ Edit the **parameters.conf** file to specify input paths, output directories, an
 **RUN_ANNOTATION**: Enable functional annotation (true/false).
 ### Execution:
 Run the pipeline using the main script:
-
 ```bash
-Copier le code
-bash pipeline.sh
+Copy the code
+sbatch pipeline.sh
 ```
 ---
 ## Log File Details and Troubleshooting
