@@ -1,16 +1,28 @@
 #!/bin/bash
+#SBATCH -D /project/dator3/users/mebab12/BVGSNP/BVG-7003-Devoir-2--Seq2VCF/
+#SBATCH -J CanGBS
+#SBATCH -o gbs-%j.out
+#SBATCH -c 10
+#SBATCH -p soyagen
+#SBATCH -A soyagen
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=mehdi.babaei.1@ulaval.ca
+#SBATCH --time=10-00:00
+#SBATCH --mem=15G
 
 # -----------------------------
 # Load Modules
 # -----------------------------
 module load python/3.5
-module load java/jdk/22.0.2
 module load cutadapt/2.1
 module load sabre/1.000
 module load bwa/0.7.17
 module load samtools/1.8
 module load bcftools/1.15
 module load fastqc/0.11.2
+module load snpEff/5.2e
+module load java/jdk/22.0.2
+
 
 # -----------------------------
 # Load Parameters
@@ -26,7 +38,6 @@ VCF_DIR="${RESULTS_DIR}/variants"
 
 # Create required directories
 mkdir -p ${DEMUX_DIR} ${QC_DIR} ${TRIM_DIR} ${ALIGN_DIR} ${VCF_DIR}
-
 
 # -----------------------------
 # Step 1: Demultiplexing
@@ -126,3 +137,17 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Variant Calling Complete. Final VCF file is at: ${VCF_DIR}/variants_sorted.vcf.gz"
+
+# -----------------------------
+# Step 6: Functional Annotation with SnpEff (Optional)
+# -----------------------------
+
+
+if [ ! -f ${SNP_EFF_PATH} ]; then
+    echo "Error: snpEff.jar not found at ${SNP_EFF_PATH}!"
+    exit 1
+fi
+
+snpEff annotate -v ${SNP_EFF_PATH} ann ${SNP_EFFECT_DB} ${VCF_DIR}/variants_sorted.vcf.gz > ${VCF_DIR}/variants_annotated.vcf
+bgzip -c ${VCF_DIR}/variants_annotated.vcf > ${VCF_DIR}/variants_annotated.vcf.gz
+tabix -p vcf ${VCF_DIR}/variants_annotated.vcf.gz
