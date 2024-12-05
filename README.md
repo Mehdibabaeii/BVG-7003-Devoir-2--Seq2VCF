@@ -46,7 +46,7 @@ The pipeline requires the following tools:
 ### Installation Steps:
 1. Clone the repository:
    ```bash
-   git clone https://github.com/username/Seq2VCF.git
+   git clone https://github.com/Mehdibabaeii/BVG-7003-Devoir-2--Seq2VCF.git
    cd Seq2VCF
    ```
 2. if necessary, install required tools.  Use conda, apt, or brew based on your system. Example for conda:
@@ -69,7 +69,7 @@ Edit the **parameters.conf** file to specify input paths, output directories, an
 Run the pipeline using the main script:
 ```bash
 Copy the code
-sbatch pipeline.sh
+sbatch SLURM_Seq2VCF.sh
 ```
 ---
 ## Log File Details and Troubleshooting
