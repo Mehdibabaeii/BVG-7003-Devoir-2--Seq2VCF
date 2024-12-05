@@ -67,8 +67,8 @@ Edit the **parameters.conf** file to specify input paths, output directories, an
 **RUN_ANNOTATION**: Enable functional annotation (true/false).
 ### Execution:
 Run the pipeline using the main script:
+
 ```bash
-Copy the code
 sbatch SLURM_Seq2VCF.sh
 ```
 ---
