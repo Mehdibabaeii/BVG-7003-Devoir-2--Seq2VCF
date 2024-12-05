@@ -47,7 +47,7 @@ The pipeline requires the following tools:
 1. Clone the repository:
    ```bash
    git clone https://github.com/Mehdibabaeii/BVG-7003-Devoir-2--Seq2VCF.git
-   cd Seq2VCF
+   cd BVG-7003-Devoir-2--Seq2VCF
    ```
 2. if necessary, install required tools.  Use conda, apt, or brew based on your system. Example for conda:
      ```bash
